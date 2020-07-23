@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>{% block title %} {% endblock %}</title>
+
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine-turbolinks-adapter@master/dist/alpine-turbolinks-adapter.min.js" defer></script>
+</head>
+<body class="bg-gray-100">
+
+<div class="bg-green-500 py-8 text-center">
+    <h1 class="text-gray-100 font-black text-4xl tracking-5">To-Do List App</h1>
+    <p class="text-green-800 font-medium font-mono text-sm">Written with Django, Django Rest Framework, TailwindCSS, Alpine.js</p>
+</div>
+
+{% block content %}
+{% endblock %}
+
+</body>
+</html>

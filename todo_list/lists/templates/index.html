@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}
+To-Do List App
+{% endblock %}
+
+{% block content %}
+
+
+<div x-data="getLists()" class="mx-4 md:mx-32 my-16 bg-white shadow p-8 px-8 rounded-sm">
+    <h2 class="text-green-500 font-black text-2xl uppercase text-center">{{ request.user.username }}'s Lists</h2>
+    <form id="list-form">
+        {% csrf_token %}
+    </form>
+    <div class="flex justify-end mt-4">
+        <div class="rounded-md border shadow p-2 flex-1 inline-flex">
+            <input x-model="newList" class="mr-2 w-5/6" type="text" placeholder="new list">
+            <button @click="addList(newList)" type="button" class="w-1/6 border px-2 py-1 font-mono text-sm bg-green-400 hover:bg-green-500 active:bg-green-700 text-gray-100">Add List</button>
+        </div>
+    </div>
+
+    <ul class="mt-4">
+        <template x-for="list in lists">
+            <li class="bg-gray-100 border border-gray-300 rounded-md shadow-sm p-2 px-4 my-2 flex justify-between">
+                <a
+                        x-text="list.title"
+                        x-bind:href="'/list/'+list.id"
+                        class="border border-gray-100 text-green-800 font-mono px-2 py-1 hover:text-green-500"></a>
+                <button @click="removeList(list.id)"
+                        class="border px-2 py-1 font-mono text-sm bg-red-400 hover:bg-red-500 text-gray-100">Delete List</button>
+            </li>
+        </template>
+    </ul>
+
+</div>
+
+
+<script>
+
+
+const getLists = () => {
+    return {
+        newList: '',
+        lists: [
+            {% for l in lists %}
+            { 'title': '{{ l.title }}', 'id': '{{ l.id }}' },
+            {% endfor %}
+        ]
+    }
+};
+
+const csrftoken = document.querySelector('#list-form > input').value;
+
+
+const addList = async title => {
+    try {
+    const res = await axios.post('/api/lists/',
+        { title },
+        { headers: { 'X-CSRFToken': csrftoken }}
+        );
+    location.reload();
+      } catch (e) {
+        console.error(e);
+      }
+};
+
+const removeList = async listId => {
+    try {
+    const res = await axios.delete('/api/lists/' + listId + '/',
+        { headers: { 'X-CSRFToken': csrftoken }}
+        );
+    location.reload();
+      } catch (e) {
+        console.error(e);
+      }
+};
+
+</script>
+
+{% endblock %}
+
+
+
+
+
+
+
+

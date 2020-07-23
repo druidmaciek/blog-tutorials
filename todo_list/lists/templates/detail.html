@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ list.title }} - ToDos
+{% endblock %}
+
+{% block content %}
+
+
+<div x-data="getTasks()" class="mx-4 md:mx-32 my-16 bg-white shadow p-8 px-8 rounded-sm">
+    <h2 class="text-green-500 font-black text-2xl uppercase text-center">{{ list.title }}'s ToDos</h2>
+    <form id="list-form">
+        {% csrf_token %}
+    </form>
+    <div class="flex justify-end mt-4">
+        <div class="rounded-md border shadow p-2 flex-1 inline-flex">
+            <input x-model="newTask" class="mr-2 w-5/6" type="text" placeholder="new task">
+            <button @click="addTask(newTask, {{ list.id }} )" class="w-1/6 border px-2 py-1 font-mono text-sm bg-green-400 hover:bg-green-500 active:bg-green-700 text-gray-100">Add Task</button>
+        </div>
+    </div>
+
+    <ul class="mt-4">
+        <template x-for="task in tasks">
+            <li class="bg-gray-100 border border-gray-300 rounded-md shadow-sm p-2 px-4 my-2 flex justify-between font-mono">
+                <div class="flex justify-start">
+                    <button @click="removeTask(task.id)" class="mr-2">
+                        <svg class="h-5 text-gray-500 hover:text-red-500" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </button>
+                    <p class="text-gray-800" x-text="task.title"></p>
+                </div>
+                <button @click="updateTask(task.id, false)"
+                        x-show="task.status == 'True'" class="text-green-500 hover:text-gray-500 cursor-pointer">Completed</button>
+                <button @click="updateTask(task.id, true)"
+                        x-show="task.status == 'False'" class="text-gray-500 hover:text-green-500 cursor-pointer">Not Completed</button>
+            </li>
+        </template>
+    </ul>
+</div>
+
+
+<script>
+
+const csrftoken = document.querySelector('#list-form > input').value;
+
+
+const getTasks = () => {
+    return {
+        newTask: '',
+        tasks: [
+            {% for t in list.tasks.all %}
+            { 'title': '{{ t.title }}', 'id': '{{ t.id }}', 'status': '{{ t.completed }}' },
+            {% endfor %}
+        ]
+    }
+};
+
+const addTask = async (title, listId) => {
+    try {
+    const res = await axios.post('/api/tasks/',
+        { title, parent_list: listId },
+        { headers: { 'X-CSRFToken': csrftoken }}
+        );
+    location.reload();
+      } catch (e) {
+        console.error(e);
+      }
+};
+
+const removeTask = async taskId => {
+    try {
+    const res = await axios.delete('/api/tasks/' + taskId + '/',
+        { headers: { 'X-CSRFToken': csrftoken }}
+        );
+    location.reload();
+      } catch (e) {
+        console.error(e);
+      }
+};
+
+const updateTask = async (taskId, taskStatus) => {
+    try {
+    const res = await axios.patch('/api/tasks/' + taskId + '/',
+        { id: taskId, completed: taskStatus},
+        { headers: { 'X-CSRFToken': csrftoken }}
+        );
+    location.reload();
+      } catch (e) {
+        console.error(e);
+      }
+};
+
+
+</script>
+
+{% endblock %}
